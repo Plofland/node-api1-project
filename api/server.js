@@ -15,6 +15,29 @@ server.get('/users', (req, res) => {
     .catch((error) => res.status(500).json({ error: error.message }));
 });
 
+server.get('/users/:id', (req, res) => {
+  const { id } = req.params;
+  dbFunctions
+    .findById(id)
+    .then((user) => {
+      if (user) {
+        res.status(200).json(user);
+      } else {
+        res.status(404).json({ message: `No user with the id of ${id}` });
+      }
+    })
+    .catch((error) => {
+      res.status(500).json({ error: error.message });
+    });
+});
+
+// server.post('/users', (req, res) => {
+//   dbFunctions
+//     .insert()
+//     .then()
+//     .catch()
+// })
+
 server.use('*', (req, res) => {
   res.status(404).json({ message: '404 Not Found, sorry mate' });
 });
