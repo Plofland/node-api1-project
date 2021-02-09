@@ -31,12 +31,35 @@ server.get('/users/:id', (req, res) => {
     });
 });
 
-// server.post('/users', (req, res) => {
-//   dbFunctions
-//     .insert()
-//     .then()
-//     .catch()
-// })
+server.post('/users', async (req, res) => {
+  const newUser = req.body;
+  if (!newUser.name || !newUser.bio) {
+    res.status(401).json({ message: 'Name and bio are required' });
+  } else {
+    try {
+      const newlyCreatedUser = await dbFunctions.insert(newUser);
+      res.status(201).json(newlyCreatedUser);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+});
+
+server.delete('/users/:id', (req, res) => {
+  const { id } = req.params;
+  dbFunctions
+    .remove(id)
+    .then((deleted) => {
+      if (deleted) {
+        res.status(200).json(deleted);
+      } else {
+        res
+          .status(404)
+          .json({ message: `User with id of ${id} cannot be found` });
+      }
+    })
+    .catch((error) => res.status(500).json({ message: error.message }));
+});
 
 server.use('*', (req, res) => {
   res.status(404).json({ message: '404 Not Found, sorry mate' });
